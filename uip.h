@@ -87,6 +87,9 @@
 #define __UIP_H__
 
 #include "uipopt.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Repressentation of an IP address.
@@ -569,6 +572,10 @@ struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
  * \hideinitializer
  */
 void uip_send(const void *data, int len);
+
+struct uip_udp_conn;
+
+ void uip_send_udp(const void *data, int len,struct uip_udp_conn *conn);
 
 /**
  * The length of any incoming data that is currently avaliable (if avaliable)
@@ -1627,6 +1634,9 @@ u16_t uip_tcpchksum(void);
  */
 u16_t uip_udpchksum(void);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __UIP_H__ */
 

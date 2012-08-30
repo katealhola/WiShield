@@ -83,6 +83,9 @@
 
 #include "uipopt.h"
 #include "pt.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
  /*
  * The structure that holds the state of a buffer.
@@ -374,6 +377,9 @@ char psock_newdata(struct psock *s);
 
 #define PSOCK_WAIT_THREAD(psock, condition)   \
   PT_WAIT_THREAD(&((psock)->pt), (condition))
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PSOCK_H__ */
 

@@ -37,10 +37,16 @@
 
 #include "pt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef UIP_TCP_APPSTATE
+#define UIP_TCP_APPSTATE
 typedef struct socket_app_state {
   char name;
 } uip_tcp_appstate_t;
-
+#endif
 void dummy_app_appcall(void);
 #ifndef UIP_APPCALL
 #define UIP_APPCALL dummy_app_appcall
@@ -58,5 +64,7 @@ void udpapp_appcall(void);
 #endif /* UIP_UDP_APPCALL */
 
 void udpapp_init(void);
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __UDPAPP_H__ */

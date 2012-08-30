@@ -37,6 +37,12 @@
 
 #include "psock.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define UIP_TCP_APPSTATE
+
 typedef struct webserver_state {
 	struct psock p;
 	char inputbuf[10];
@@ -48,5 +54,8 @@ void webserver_appcall(void);
 #endif /* UIP_APPCALL */
 
 void webserver_init(void);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __WEBSERVER_H__ */

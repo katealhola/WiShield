@@ -1133,14 +1133,25 @@ uip_process(u8_t flag)
        numbers match, the remote port number is checked if the
        connection is bound to a remote port. Finally, if the
        connection is bound to a remote IP address, the source IP
-       address of the packet is checked. */
+       address of the packet is checked. 
+=====================
+       Kate Alhola:
+       This IS NOT WAY UDP SHOULD WORK. Only local port should be checked
+       but remote port and ip address should be saved to be able to reply
+       
+
+*/
+    //    debugMessageIII("udp:",(int)uip_udp_conn,htons(UDPBUF->destport),htons(uip_udp_conn->lport));
+    hexdump((unsigned char*)uip_udp_conn,sizeof(struct uip_udp_conn));
     if(uip_udp_conn->lport != 0 &&
-       UDPBUF->destport == uip_udp_conn->lport &&
+       UDPBUF->destport == uip_udp_conn->lport)
+      /* JUNK  &&     // Kate: This SHOULD NOT BE DONE 
        (uip_udp_conn->rport == 0 ||
         UDPBUF->srcport == uip_udp_conn->rport) &&
        (uip_ipaddr_cmp(uip_udp_conn->ripaddr, all_zeroes_addr) ||
 	uip_ipaddr_cmp(uip_udp_conn->ripaddr, all_ones_addr) ||
-	uip_ipaddr_cmp(BUF->srcipaddr, uip_udp_conn->ripaddr))) {
+	uip_ipaddr_cmp(BUF->srcipaddr, uip_udp_conn->ripaddr))) 
+      */{
       goto udp_found;
     }
   }
@@ -1148,9 +1159,11 @@ uip_process(u8_t flag)
   goto drop;
 
  udp_found:
-  if (uip_udp_conn->rport == 0) {
+  //  if (uip_udp_conn->rport == 0) { // Kate:
+  // Save port and address to baaeble to reply
     uip_udp_conn->rport = UDPBUF->srcport;
-  }
+    uip_ipaddr_copy(uip_udp_conn->ripaddr,BUF->srcipaddr);
+  //}
   uip_conn = NULL;
   uip_flags = UIP_NEWDATA;
   uip_sappdata = uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
@@ -1914,13 +1927,30 @@ htons(u16_t val)
   return HTONS(val);
 }
 /*---------------------------------------------------------------------------*/
+
+void uip_send_udp(const void *data, int len,struct uip_udp_conn *conn)
+{
+  //  debugMessageI("uip_send_udp():",len);
+  if(len > 0) {
+    uip_slen = len;
+    uip_sappdata = uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
+    if(data != uip_sappdata) {
+	memcpy(uip_sappdata, (data), uip_slen);
+    };
+    uip_udp_conn=conn;
+    uip_process(UIP_UDP_SEND_CONN); // Prepare packet for sending
+    uip_arp_out(); // Arp it
+    network_send(); // send
+  }
+}
+
 void
 uip_send(const void *data, int len)
 {
   if(len > 0) {
     uip_slen = len;
     if(data != uip_sappdata) {
-      memcpy(uip_sappdata, (data), uip_slen);
+	memcpy(uip_sappdata, (data), uip_slen);
     }
   }
 }
